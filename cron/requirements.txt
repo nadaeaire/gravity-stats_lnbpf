@@ -2,3 +2,5 @@ requests
 shapely
 supabase
 beautifulsoup4
+gspread
+oauth2client
