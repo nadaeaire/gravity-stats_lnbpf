@@ -1,0 +1,12 @@
+streamlit
+pandas
+gspread
+oauth2client
+plotly
+numpy
+pytz
+matplotlib
+psycopg2-binary
+sqlalchemy
+supabase
+scipy
