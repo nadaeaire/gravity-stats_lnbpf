@@ -34,22 +34,20 @@ def render_view(df_tiros, df_equipos_stats, categoria_sel, alias_equipos, df_equ
     # Derivar Categoría directamente del catálogo de equipos (competicion_id)
     # para incluir TODOS los equipos, no solo los que tienen stats de partidos
     eq_cat = df_equipos_cat[['equipo_id', 'nombre']].copy()
-    eq_cat['Categoria'] = 'Femenil D1'
-
+    eq_cat['equipo_id'] = eq_cat['equipo_id'].astype(str)
     eq_cat = eq_cat.drop_duplicates(subset=['equipo_id'])
     eq_cat = eq_cat.rename(columns={'nombre': 'equipo_nombre'})
-    df_t = df_tiros.merge(eq_cat, on='equipo_id', how='inner')
 
-    if 'Categoria' not in df_t.columns or df_t['Categoria'].isna().all():
-        st.warning("No se pudo determinar la categoría de los equipos.")
+    df_t = df_tiros.copy()
+    df_t['equipo_id'] = df_t['equipo_id'].astype(str)
+    df_t = df_t.merge(eq_cat, on='equipo_id', how='left')
+    df_t['Categoria'] = 'Femenil D1'
+
+    if df_t.empty:
+        st.warning("No hay tiros registrados.")
         return
 
     df_t['equipo_nombre'] = df_t['equipo_nombre'].replace(alias_equipos)
-    df_t = df_t[df_t['Categoria'] == categoria_sel]
-
-    if df_t.empty:
-        st.warning(f"No hay tiros registrados para {categoria_sel}.")
-        return
 
     df_t = normalizar_tiros(df_t)
     df_t = df_t[df_t['court_y'] <= 12.0]
