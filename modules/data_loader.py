@@ -103,7 +103,7 @@ def cargar_base_datos():
         # OPTIMIZACIÓN: columnas específicas en lugar de SELECT *
         # Reduce payload JSON (~8% menos datos transferidos).
         # OPTIMIZACIÓN: usar vista materializada (pre-computada por el cron)
-        all_data = _fetch_all_rows("vista_analitica_mat", select_cols=_COLS_ANALITICA)
+        all_data = _fetch_all_rows("vista_analitica_master", select_cols=_COLS_ANALITICA)
 
         if not all_data: return pd.DataFrame()
 
@@ -162,7 +162,7 @@ def cargar_datos_equipos_only():
         # OPTIMIZACIÓN: columnas específicas en lugar de SELECT *
         # Elimina 8 columnas no usadas (~27% menos datos transferidos).
         # OPTIMIZACIÓN: usar vista materializada (pre-computada por el cron)
-        all_data = _fetch_all_rows("vista_equipos_mat", select_cols=_COLS_EQUIPOS)
+        all_data = _fetch_all_rows("vista_equipos_master", select_cols=_COLS_EQUIPOS)
         if not all_data: return pd.DataFrame()
 
         df = pd.DataFrame(all_data)
