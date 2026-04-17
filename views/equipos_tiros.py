@@ -34,21 +34,7 @@ def render_view(df_tiros, df_equipos_stats, categoria_sel, alias_equipos, df_equ
     # Derivar Categoría directamente del catálogo de equipos (competicion_id)
     # para incluir TODOS los equipos, no solo los que tienen stats de partidos
     eq_cat = df_equipos_cat[['equipo_id', 'nombre']].copy()
-    if 'competicion_id' in df_equipos_cat.columns:
-        eq_cat['competicion_id'] = df_equipos_cat['competicion_id'].astype(str)
-        eq_cat['Categoria'] = eq_cat['competicion_id'].map({
-            '42033': 'Femenil D1',
-            '42034': 'Varonil D1'
-        })
-    else:
-        # Fallback: usar vista_equipos_master para Categoría
-        eq_cat['Categoria'] = None
-        if not df_equipos_stats.empty and 'equipo_nombre' in df_equipos_stats.columns:
-            cat_map = df_equipos_stats[['equipo_nombre', 'Categoria']].drop_duplicates(subset=['equipo_nombre'])
-            eq_cat = eq_cat.merge(cat_map, left_on='nombre', right_on='equipo_nombre', how='left', suffixes=('', '_stats'))
-            if 'Categoria_stats' in eq_cat.columns:
-                eq_cat['Categoria'] = eq_cat['Categoria'].fillna(eq_cat['Categoria_stats'])
-                eq_cat = eq_cat.drop(columns=['equipo_nombre_stats', 'Categoria_stats'], errors='ignore')
+    eq_cat['Categoria'] = 'Femenil D1'
 
     eq_cat = eq_cat.drop_duplicates(subset=['equipo_id'])
     eq_cat = eq_cat.rename(columns={'nombre': 'equipo_nombre'})

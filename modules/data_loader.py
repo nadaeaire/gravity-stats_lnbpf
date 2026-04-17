@@ -234,7 +234,7 @@ def cargar_tiros():
     try:
         all_data = _fetch_all_rows(
             "tiros",
-            select_cols="tiro_id,partido_id,equipo_id,player_id,r,x,y,actiontype,subtype,per"
+            select_cols="partido_id,equipo_id,player_id,r,x,y,actiontype,subtype,per"
         )
         if not all_data:
             return pd.DataFrame()
