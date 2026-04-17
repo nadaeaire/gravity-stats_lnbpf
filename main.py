@@ -92,9 +92,7 @@ if IS_TEST:
         unsafe_allow_html=True
     )
 
-opciones_cat = ["Femenil D1", "Varonil D1"]
-categoria_sel = st.sidebar.selectbox("Categoría:", opciones_cat, index=0)
-utils.rastrear_cambio("Categoría Seleccionada", categoria_sel)
+categoria_sel = "Femenil D1"
 
 # Filtrado Global del DataFrame de Jugadores (Game Logs)
 if not df_raw.empty:
