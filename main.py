@@ -96,17 +96,40 @@ if IS_TEST:
 
 categoria_sel = "Femenil D1"
 
+# --- SELECTOR DE ETAPA ---
+etapa_opciones = {
+    "Total":              None,
+    "Temporada Regular":  1,
+    "Playoffs":           2,
+}
+st.sidebar.markdown("**Etapa:**")
+etapa_sel = st.sidebar.radio(
+    "Etapa:",
+    list(etapa_opciones.keys()),
+    index=0,
+    label_visibility="collapsed",
+    key="etapa_filter",
+)
+etapa_val = etapa_opciones[etapa_sel]
+
 # Filtrado Global del DataFrame de Jugadores (Game Logs)
 if not df_raw.empty:
     df = df_raw[df_raw['Categoria'] == categoria_sel].copy()
+    if etapa_val is not None and 'etapa' in df.columns:
+        df = df[df['etapa'] == etapa_val]
 else:
     df = pd.DataFrame()
 
 # Filtrado Global del DataFrame de Equipos (Team-level, sin depender de players_detalle)
 if not df_equipos_raw.empty:
     df_eq = df_equipos_raw[df_equipos_raw['Categoria'] == categoria_sel].copy()
+    if etapa_val is not None and 'etapa' in df_eq.columns:
+        df_eq = df_eq[df_eq['etapa'] == etapa_val]
 else:
     df_eq = pd.DataFrame()
+
+# IDs de partidos válidos para filtrar tiros (respeta la etapa seleccionada)
+valid_partido_ids = set(df['id_abe'].astype(str).unique()) if not df.empty else None
 
 # Aviso si no hay jugadores
 if df.empty:
@@ -167,7 +190,9 @@ if st.session_state.view_mode == 'profile':
     # OPTIMIZACIÓN: tiros se cargan solo al entrar al perfil (lazy load, cached)
     current_pid = st.session_state.selected_player_id
     df_tiros = cargar_tiros()
-    view_players_prfl.render_view(current_pid, df_raw, df_players, df_rosters, df_equipos_cat, df_tiros)
+    if valid_partido_ids is not None:
+        df_tiros = df_tiros[df_tiros['partido_id'].astype(str).isin(valid_partido_ids)]
+    view_players_prfl.render_view(current_pid, df, df_players, df_rosters, df_equipos_cat, df_tiros)
 
 # B) Si estamos en modo Normal, mostramos lo que diga el menú
 else:
@@ -204,6 +229,8 @@ else:
     elif opcion == "🎯 Mapa de Tiros Beta":
         # OPTIMIZACIÓN: tiros se cargan solo al entrar a esta vista (lazy load)
         df_tiros = cargar_tiros()
+        if valid_partido_ids is not None:
+            df_tiros = df_tiros[df_tiros['partido_id'].astype(str).isin(valid_partido_ids)]
         view_equipos_tiros.render_view(
             df_tiros,
             df_equipos_raw,

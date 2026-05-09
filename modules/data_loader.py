@@ -65,7 +65,7 @@ def get_supabase_client() -> Client:
 # Opp_POSS_DB (no se usa en ninguna vista).
 _COLS_ANALITICA = ",".join([
     # Identificadores
-    "id_player", "Nombre", "id_abe", "Fecha", "Categoria", "equipo_nombre",
+    "id_player", "Nombre", "id_abe", "Fecha", "Categoria", "etapa", "equipo_nombre",
     # Stats individuales del jugador
     "sMinutes", "sPoints", "starter",
     "sFieldGoalsMade", "sFieldGoalsAttempted",
@@ -87,7 +87,7 @@ _COLS_ANALITICA = ",".join([
 
 # vista_equipos_master — columnas usadas por equipos_smry, equipos_4f y equipos_avg.
 _COLS_EQUIPOS = ",".join([
-    "id_abe", "equipo_nombre", "Fecha", "Categoria",
+    "id_abe", "equipo_nombre", "Fecha", "Categoria", "etapa",
     "Tm_Score", "Tm_FG", "Tm_FGA", "Tm_3PM", "Tm_3PA", "Tm_2PM",
     "Tm_FTM", "Tm_FTA", "Tm_ORB", "Tm_DRB", "Tm_TRB",
     "Tm_AST", "Tm_TOV", "Tm_STL", "Tm_BLK", "Tm_PF", "Tm_PFR",
@@ -130,8 +130,12 @@ def cargar_base_datos():
 
         # --- CORRECCIÓN AQUÍ ---
         # Sanitización Numérica (EXCLUYENDO Opp_Name)
+        # etapa → entero (1 = Temporada Regular, 2 = Playoffs)
+        if 'etapa' in df_master.columns:
+            df_master['etapa'] = pd.to_numeric(df_master['etapa'], errors='coerce').fillna(0).astype(int)
+
         cols_numericas = [c for c in df_master.columns if c.startswith('s') or c.startswith('Tm_') or c.startswith('Opp_')]
-        
+
         for col in cols_numericas:
              # Agregamos 'Opp_Name' a las excepciones para que NO lo convierta a número
              if col not in ['sMinutes', 'Tm_MIN', 'Opp_Name']:
@@ -174,6 +178,10 @@ def cargar_datos_equipos_only():
         # Tipos
         if 'Fecha' in df.columns:
             df['Fecha'] = pd.to_datetime(df['Fecha'], errors='coerce')
+
+        # etapa → entero
+        if 'etapa' in df.columns:
+            df['etapa'] = pd.to_numeric(df['etapa'], errors='coerce').fillna(0).astype(int)
 
         # OPTIMIZACIÓN: solo sanitizar columnas que realmente se traen
         cols_num = ['Tm_Score', 'Opp_Score', 'Tm_FG', 'Tm_FGA', 'Tm_3PM', 'Tm_FTM',
