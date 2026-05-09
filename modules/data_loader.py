@@ -19,7 +19,7 @@ def vectorizar_minutos(series):
         result_minutes.loc[~mask_is_float] = 0.0
     return result_minutes.fillna(0.0)
 
-def _fetch_all_rows(table_name, select_cols="*", page_size=5000):
+def _fetch_all_rows(table_name, select_cols="*", page_size=1000):
     """Descarga TODAS las filas de una tabla paginando en bloques.
 
     Supabase PostgREST limita las respuestas a 1,000 filas por defecto
