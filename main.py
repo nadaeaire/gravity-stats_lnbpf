@@ -13,6 +13,8 @@ import views.equipos_4f as view_equipos_4f
 import views.players_prfl as view_players_prfl
 import views.equipos_tiros as view_equipos_tiros
 import views.equipos_avg as view_equipos_avg
+import views.equipos_tot as view_equipos_tot
+import views.players_tot as view_players_tot
 
 # --- Detección de entorno (test vs producción) ---
 # En Streamlit Cloud → Secrets del app de test agregar: entorno = "test"
@@ -118,7 +120,7 @@ def reset_view():
     st.session_state.view_mode = 'main'
 
 # Menú Principal (SIN "Perfil Jugador")
-opciones_menu = ["🤝 Equipos", "📋 Equipos por partido", "4️⃣ Four Factors", "🎯 Mapa de Tiros Beta", "📊 Por partido", "🛸 Avanzadas"]
+opciones_menu = ["🤝 Equipos", "📋 Equipos por partido", "🔢 Equipos totales", "4️⃣ Four Factors", "🎯 Mapa de Tiros Beta", "📊 Por partido", "🛸 Avanzadas", "📈 Totales"]
 if IS_TEST:
     opciones_menu.append("🔍 Diagnóstico")
 
@@ -181,11 +183,20 @@ else:
         else:
             view_players_adv.render_view(df, df_players, df_rosters, categoria_sel)
 
+    elif opcion == "📈 Totales":
+        if df.empty:
+            st.error("No hay datos disponibles.")
+        else:
+            view_players_tot.render_view(df, df_players, df_rosters, categoria_sel)
+
     elif opcion == "🤝 Equipos":
         view_equipos_smry.render_view(df_eq if not df_eq.empty else df, categoria_sel)
 
     elif opcion == "📋 Equipos por partido":
         view_equipos_avg.render_view(df_eq if not df_eq.empty else df, categoria_sel)
+
+    elif opcion == "🔢 Equipos totales":
+        view_equipos_tot.render_view(df_eq if not df_eq.empty else df, categoria_sel)
 
     elif opcion == "4️⃣ Four Factors":
         view_equipos_4f.render_view(df_eq if not df_eq.empty else df, categoria_sel)

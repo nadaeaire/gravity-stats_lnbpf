@@ -205,7 +205,72 @@ def render_view(id_jugador, df_games, df_players, df_rosters, df_teams, df_tiros
             "PFR": st.column_config.NumberColumn("PFR", format="%.1f")
             })
 
-    # --- D. TABLA AVANZADAS (FIJA) ---
+    # --- D. TABLA TOTALES ---
+    st.subheader("Totales")
+    tot = df_filtered_games.groupby(['id_player']).agg({
+        'sPoints': 'sum', 'sReboundsTotal': 'sum', 'sAssists': 'sum',
+        'sThreePointersMade': 'sum', 'sMinutes': 'sum', 'starter': 'sum',
+        'sFieldGoalsMade': 'sum', 'sFieldGoalsAttempted': 'sum',
+        'sTwoPointersMade': 'sum', 'sTwoPointersAttempted': 'sum',
+        'sThreePointersAttempted': 'sum', 'sFreeThrowsMade': 'sum',
+        'sFreeThrowsAttempted': 'sum', 'sReboundsOffensive': 'sum',
+        'sReboundsDefensive': 'sum', 'sTurnovers': 'sum', 'sSteals': 'sum',
+        'sBlocks': 'sum', 'sFoulsPersonal': 'sum', 'sFoulsOn': 'sum',
+        'id_abe': 'count'
+    }).reset_index()
+
+    tot.rename(columns={
+        'id_abe': 'GP', 'sMinutes': 'MIN', 'starter': 'JT',
+        'sFieldGoalsMade': 'FGM', 'sFieldGoalsAttempted': 'FGA',
+        'sTwoPointersMade': '2PM', 'sTwoPointersAttempted': '2PA',
+        'sThreePointersAttempted': '3PA', 'sFreeThrowsMade': 'FTM',
+        'sFreeThrowsAttempted': 'FTA', 'sReboundsOffensive': 'RBO',
+        'sReboundsDefensive': 'RBD', 'sTurnovers': 'TOV', 'sSteals': 'STL',
+        'sBlocks': 'BLK', 'sFoulsPersonal': 'PF', 'sFoulsOn': 'PFR',
+    }, inplace=True)
+
+    tot['FG%'] = calc_pct(tot['FGM'], tot['FGA'])
+    tot['2P%'] = calc_pct(tot['2PM'], tot['2PA'])
+    tot['3PM'] = tot['sThreePointersMade']
+    tot['3P%'] = calc_pct(tot['3PM'], tot['3PA'])
+    tot['FT%'] = calc_pct(tot['FTM'], tot['FTA'])
+
+    cols_tot = ["GP", "JT", "MIN", "FGM", "FGA", "FG%", "2PM", "2PA", "2P%",
+                "3PM", "3PA", "3P%", "FTM", "FTA", "FT%",
+                "RBO", "RBD", "sReboundsTotal", "sAssists",
+                "TOV", "STL", "BLK", "PF", "PFR", "sPoints"]
+    cols_tot_final = [c for c in cols_tot if c in tot.columns]
+
+    st.dataframe(tot[cols_tot_final], hide_index=True, use_container_width=True,
+        column_config={
+            "GP":             st.column_config.NumberColumn("JJ",  format="%d"),
+            "JT":             st.column_config.NumberColumn("JT",  format="%d"),
+            "MIN":            st.column_config.NumberColumn("MIN", format="%.1f"),
+            "sPoints":        st.column_config.NumberColumn("PTS", format="%d"),
+            "RBO":            st.column_config.NumberColumn("RBO", format="%d"),
+            "RBD":            st.column_config.NumberColumn("RBD", format="%d"),
+            "sReboundsTotal": st.column_config.NumberColumn("RBT", format="%d"),
+            "sAssists":       st.column_config.NumberColumn("AST", format="%d"),
+            "FGM":            st.column_config.NumberColumn("FGM", format="%d"),
+            "FGA":            st.column_config.NumberColumn("FGA", format="%d"),
+            "2PM":            st.column_config.NumberColumn("2PM", format="%d"),
+            "2PA":            st.column_config.NumberColumn("2PA", format="%d"),
+            "3PM":            st.column_config.NumberColumn("3PM", format="%d"),
+            "3PA":            st.column_config.NumberColumn("3PA", format="%d"),
+            "FTM":            st.column_config.NumberColumn("FTM", format="%d"),
+            "FTA":            st.column_config.NumberColumn("FTA", format="%d"),
+            "TOV":            st.column_config.NumberColumn("TOV", format="%d"),
+            "STL":            st.column_config.NumberColumn("STL", format="%d"),
+            "BLK":            st.column_config.NumberColumn("BLK", format="%d"),
+            "PF":             st.column_config.NumberColumn("PF",  format="%d"),
+            "PFR":            st.column_config.NumberColumn("PFR", format="%d"),
+            "FG%":            st.column_config.NumberColumn("FG%", format="%.1f%%"),
+            "2P%":            st.column_config.NumberColumn("2P%", format="%.1f%%"),
+            "FT%":            st.column_config.NumberColumn("FT%", format="%.1f%%"),
+            "3P%":            st.column_config.NumberColumn("3P%", format="%.1f%%"),
+        })
+
+    # --- E. TABLA AVANZADAS (FIJA) ---
     st.subheader("Estadísticas avanzadas")
     totals = df_filtered_games.groupby(['id_player']).agg({
         'id_abe': 'count', 'sMinutes': 'sum', 'sPoints': 'sum', 'sFieldGoalsMade': 'sum', 'sFieldGoalsAttempted': 'sum', 'sThreePointersMade': 'sum', 'sTwoPointersMade': 'sum', 'sFreeThrowsMade': 'sum', 'sFreeThrowsAttempted': 'sum', 'sReboundsOffensive': 'sum', 'sReboundsDefensive': 'sum', 'sReboundsTotal': 'sum', 'sAssists': 'sum', 'sTurnovers': 'sum', 'sSteals': 'sum', 'sBlocks': 'sum', 'sFoulsPersonal': 'sum',
