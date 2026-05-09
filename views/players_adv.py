@@ -277,6 +277,9 @@ def render_view(df, df_players, df_rosters, categoria_sel):
             min_h_data, max_h_data = int(alturas_validas.min()), int(alturas_validas.max())
         else:
             min_h_data, max_h_data = 150, 210
+        if min_h_data == max_h_data:
+            min_h_data = max(140, min_h_data - 10)
+            max_h_data = min(230, max_h_data + 10)
         filtro_altura = st.slider("Rango de Estatura (cm)", min_value=min_h_data, max_value=max_h_data, value=(min_h_data, max_h_data), key="slider_height_adv")
         if filtro_altura != (min_h_data, max_h_data): utils.rastrear_cambio("Filtro Altura (Adv)", str(filtro_altura))
 
