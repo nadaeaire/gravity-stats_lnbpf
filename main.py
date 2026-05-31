@@ -101,6 +101,7 @@ etapa_opciones = {
     "Total":              None,
     "Temporada Regular":  1,
     "Playoffs":           2,
+    "Gran Final":         4,
 }
 st.sidebar.markdown("**Etapa:**")
 etapa_sel = st.sidebar.radio(
