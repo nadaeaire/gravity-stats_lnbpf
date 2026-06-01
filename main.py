@@ -100,7 +100,8 @@ categoria_sel = "Femenil D1"
 etapa_opciones = {
     "Total":              None,
     "Temporada Regular":  1,
-    "Playoffs":           2,
+    "Playoffs":           "playoffs",        # etapa > 1, excluye Gran Final (4)
+    "Playoffs Total":     "playoffs_total",  # etapa > 1 (incluye Gran Final)
     "Gran Final":         4,
 }
 st.sidebar.markdown("**Etapa:**")
@@ -113,19 +114,29 @@ etapa_sel = st.sidebar.radio(
 )
 etapa_val = etapa_opciones[etapa_sel]
 
+def _filtrar_etapa(frame, col="etapa"):
+    """Aplica el filtro de etapa activo a un DataFrame."""
+    if etapa_val is None or col not in frame.columns:
+        return frame
+    if isinstance(etapa_val, int):
+        return frame[frame[col] == etapa_val]
+    if etapa_val == "playoffs_total":
+        return frame[frame[col] > 1]
+    if etapa_val == "playoffs":
+        return frame[(frame[col] > 1) & (frame[col] != 4)]
+    return frame
+
 # Filtrado Global del DataFrame de Jugadores (Game Logs)
 if not df_raw.empty:
     df = df_raw[df_raw['Categoria'] == categoria_sel].copy()
-    if etapa_val is not None and 'etapa' in df.columns:
-        df = df[df['etapa'] == etapa_val]
+    df = _filtrar_etapa(df)
 else:
     df = pd.DataFrame()
 
 # Filtrado Global del DataFrame de Equipos (Team-level, sin depender de players_detalle)
 if not df_equipos_raw.empty:
     df_eq = df_equipos_raw[df_equipos_raw['Categoria'] == categoria_sel].copy()
-    if etapa_val is not None and 'etapa' in df_eq.columns:
-        df_eq = df_eq[df_eq['etapa'] == etapa_val]
+    df_eq = _filtrar_etapa(df_eq)
 else:
     df_eq = pd.DataFrame()
 
